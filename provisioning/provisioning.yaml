@@ -1,0 +1,141 @@
+# Create a token
+- executeScript: "http://web/create-token.groovy"
+
+# For more details about the provisioning API, you can refer to the Academy: https://academy.jahia.com/home
+# You can also find some details here: https://github.com/Jahia/jahia-private/blob/master/bundles/provisioning/README.md
+
+# Install and start bundles for Personal API Tokens and Digitall
+- installBundle:
+  - 'mvn:org.jahia.modules/bookmarks/RELEASE'
+  - 'mvn:org.jahia.modules/bootstrap3-core/RELEASE'
+  - 'mvn:org.jahia.modules/bootstrap3-components/RELEASE'
+  - 'mvn:org.jahia.modules/calendar/RELEASE'
+  - 'mvn:org.jahia.modules/digitall/RELEASE'
+  - 'mvn:org.jahia.modules/dx-base-demo-components/RELEASE'
+  - 'mvn:org.jahia.modules/dx-base-demo-core/RELEASE'
+  - 'mvn:org.jahia.modules/dx-base-demo-templates/RELEASE'
+  - 'mvn:org.jahia.modules/event/RELEASE'
+  - 'mvn:org.jahia.modules/font-awesome/RELEASE'
+  - 'mvn:org.jahia.modules/location/RELEASE'
+  - 'mvn:org.jahia.modules/news/RELEASE'
+  - 'mvn:org.jahia.modules/person/RELEASE'
+  - 'mvn:org.jahia.modules/press/RELEASE'
+  - 'mvn:org.jahia.modules/rating/RELEASE'
+  - 'mvn:org.jahia.modules/topstories/RELEASE'
+  - 'mvn:org.jahia.modules/legacy-detault-components/RELEASE'
+  - 'mvn:org.jahia.modules/skins/RELEASE'
+  - 'mvn:org.jahia.modules/default-skins/RELEASE'
+  - 'mvn:org.jahia.modules/grid/RELEASE'
+  - 'mvn:org.jahia.modules/tabularList/RELEASE'
+  autoStart: true
+  uninstallPreviousVersion: true
+
+# Import the Digitall site
+- import: "jar:mvn:org.jahia.modules/digitall/3.0.0/zip/import!/users.zip"
+- importSite: "jar:mvn:org.jahia.modules/digitall/3.0.0/zip/import!/Digitall.zip"
+
+# Augmented-Search dependencies are only available from Jahia store
+# So we're adding a new repository to be able to resolve these dependencies
+- addMavenRepository: 'https://store.jahia.com/nexus/content/repositories/jahia-public-app-store@id=JahiaStore'
+
+# Install and start bundles for Augmented Search
+- installBundle:
+  - 'mvn:org.jahia.modules/augmented-search/RELEASE'
+  - 'mvn:org.jahia.modules/augmented-search-ui/RELEASE'
+  - 'mvn:org.jahia.modules/database-connector/RELEASE'
+  - 'mvn:org.jahia.modules/elasticsearch-connector/RELEASE'
+  autoStart: true
+  uninstallPreviousVersion: true
+
+- installBundle:
+    - 'mvn:org.jahia.modules/jahia-authentication/RELEASE'
+    - 'mvn:org.jahia.modules/jcr-auth-provider/RELEASE'
+    - 'mvn:org.jahia.modules/saml-authentication-valve/RELEASE'
+    - 'mvn:org.jahia.modules/javascript-modules-engine/RELEASE'
+  autoStart: true
+  uninstallPreviousVersion: true
+
+# Install the Luxe demo site
+- installBundle:
+    - 'js:mvn:org.jahia.modules.javascript/luxe-jahia-demo/0.6.1/tgz'
+  autoStart: true
+  uninstallPreviousVersion: true
+
+- installBundle:
+    - 'mvn:org.jahia.modules/luxe-prepackaged-website/0.6.1'
+  autoStart: true
+  uninstallPreviousVersion: true
+
+- importSite: "jar:mvn:org.jahia.modules/luxe-prepackaged-website/0.6.1/zip/import!/luxe.zip"
+
+- installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap.cfg"
+- installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap-digitall.cfg"
+- installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap-luxe.cfg"
+
+# Enable Augmented Search sample UI on Digitall
+- enable: "augmented-search-ui"
+  site: "digitall"
+
+# Configure database connector with a groovy script
+- executeScript: "http://web/db-connection.groovy"
+
+# Configure Augmented Search and digitall
+- executeScript: "http://web/as-config.graphql"
+
+# Add Augmented-Search UI module in the search results instead of default one
+- executeScript: "http://web/add-search-ui.graphql"
+
+# Publish Augmented-Search UI
+- executeScript: "http://web/publish-search-ui.graphql"
+
+# Trigger a full indexation
+- executeScript: "http://web/as-index.graphql"
+
+
+# Install and start bundles for Forms and jExperience
+- installBundle:
+  - 'mvn:org.jahia.modules/forms-core/RELEASE'
+  - 'mvn:org.jahia.modules/forms-extended-inputs/RELEASE'
+  - 'mvn:org.jahia.modules/forms-nocss-theme/RELEASE'
+  - 'mvn:org.jahia.modules/forms-prefill/RELEASE'
+  - 'mvn:org.jahia.modules/forms-snippets-extension/RELEASE'
+  - 'mvn:org.jahia.modules/jexperience/RELEASE'
+  - 'mvn:org.jahia.modules/kibana-dashboards-provider/RELEASE'
+  - 'mvn:org.jahia.modules/jexperience-dashboards/RELEASE'
+  - 'mvn:org.jahia.modules/jexperience-forms-bridge/RELEASE'
+  autoStart: true
+  uninstallPreviousVersion: true
+
+# Enable jExperience on digitall
+- enable: "jexperience"
+  site: ["digitall", "luxe"]
+
+# Configure jExperience
+- editConfiguration: "org.jahia.modules.jexperience.settings"
+  configIdentifier: "global"
+  properties:
+    jexperience.jCustomerURL: "https://jcustomer:9443"
+    jexperience.jCustomerUsername: "karaf"
+    jexperience.jCustomerPassword: "karaf"
+    jexperience.jCustomerTrustAllCertificates: "true"
+    jexperience.jCustomerUsePublicAddressesForAdmin: "false"
+    jexperience.jCustomerKey: "670c26d1cc413346c3b2fd9ce65dab41"
+
+# Configure jExperience
+- editConfiguration: "org.jahia.modules.kibana_dashboards_provider"
+  properties:
+    kibana_dashboards_provider.kibanaURL: "http://kibana.localhost"
+    kibana_dashboards_provider.kibanaPassword: "root1234"
+
+- enable: ["saml-authentication-valve", "jahia-authentication", "jcr-auth-provider"]
+  site: "digitall"
+
+- installConfiguration: "http://web/org.jahia.modules.auth-digitall.cfg"
+
+# COnfigure group editor in chief for each site as well as domain name
+- executeScript: "http://web/update-sites.graphql"
+# Add SAML Login button below the slider in Digitall home
+- executeScript: "http://web/add-saml-login.graphql"
+
+# Publish SAML Button
+- executeScript: "http://web/publish-saml-login.graphql"

@@ -1,0 +1,12 @@
+mutation {
+    jcr {
+        addNode(
+            parentPathOrId: "/sites/digitall/home/search-results/area-main",
+            name: "augmented-search",
+            primaryNodeType: "sui:augmentedSearch") {
+            uuid
+        }
+        markNodeForDeletion(
+            pathOrId: "/sites/digitall/home/search-results/area-main/search-results")
+    }
+}

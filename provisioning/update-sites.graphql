@@ -1,0 +1,16 @@
+mutation {
+  jcr {
+    digitall: mutateNode(pathOrId: "/sites/digitall") {
+      grantRoles(principalName: "editor-in-chief", roleNames: ["editor-in-chief"], principalType: GROUP)
+      mutateProperty(name: "j:serverName" ) {
+        setValue(value: "digitall.jahia.localhost")
+      }
+    }
+    luxe: mutateNode(pathOrId: "/sites/luxe") {
+      grantRoles(principalName: "editor-in-chief", roleNames: ["editor-in-chief"], principalType: GROUP)
+      mutateProperty(name: "j:serverName" ) {
+        setValue(value: "luxe.jahia.localhost")
+      }
+    }
+  }
+}

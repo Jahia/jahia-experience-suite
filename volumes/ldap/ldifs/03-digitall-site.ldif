@@ -1,0 +1,10 @@
+dn: ou=digitall-site,ou=performance,dc=jahia,dc=com
+ou: digitall-site
+objectClass: top
+objectClass: organizationalUnit
+
+dn: cn=editor-in-chief,ou=digitall-site,ou=performance,dc=jahia,dc=com
+uniqueMember: cn=Susannah Monzo,ou=Management,ou=performance,dc=jahia,dc=com
+cn: editor-in-chief
+objectClass: groupOfUniqueNames
+objectClass: top

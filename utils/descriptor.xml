@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="_10e7dd189b654698b623dd6733baec23f109182"
+                     entityID="jahia-saml-client" validUntil="2045-04-09T13:57:32.749Z">
+    <md:Extensions xmlns:alg="urn:oasis:names:tc:SAML:metadata:algsupport">
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha384"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#hmac-sha256"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#hmac-sha384"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#hmac-sha512"/>
+        <alg:SigningMethod Algorithm="http://www.w3.org/2000/09/xmldsig#hmac-sha1"/>
+        <alg:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+        <alg:DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#sha384"/>
+        <alg:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+    </md:Extensions>
+    <md:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="false"
+                        protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol urn:oasis:names:tc:SAML:1.0:protocol urn:oasis:names:tc:SAML:1.1:protocol">
+        <md:Extensions xmlns:init="urn:oasis:names:tc:SAML:profiles:SSO:request-init">
+            <init:RequestInitiator Binding="urn:oasis:names:tc:SAML:profiles:SSO:request-init"
+                                   Location="http://proxy:80/sites/digitall/home.samlCallback.do?client_name=SAML2Client"/>
+        </md:Extensions>
+        <md:KeyDescriptor use="signing">
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:X509Data>
+                    <ds:X509Certificate>MIICsTCCAZkCBgGGvSP4YTANBgkqhkiG9w0BAQsFADAcMRowGAYDVQQDDBFqYWhpYS1zYW1sLWNs
+                        aWVudDAeFw0yMzAzMDcxNzMzMTZaFw0zMzAzMDcxNzM0NTZaMBwxGjAYBgNVBAMMEWphaGlhLXNh
+                        bWwtY2xpZW50MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApwC3hTgTnSuJ64dC/7Ec
+                        hOCUMVw5BE2TzbbwNJ4nJYwc0ZMmCxeq8wZeidonS9D0zxYJuvydM7v5levSwzZFXEYVMuJKvwDy
+                        UJK+uuZFI+48Ps/LDB/cdAYKv8j+NmocTcSzaNFhO3UntmrU5PmWL2sFI5BdylK5IwsUe3JJt/c7
+                        qf4KX1EsRCHGa/UnvmVoOq//p8RaQehC58agDilqetLUGugAsLVUocVPGh1WXpd5fvJtbHezPgij
+                        DeO/gr0QDd0aX6nKbCSrHu0OuiI5nYAnfXwx8EnrBwktCLCgWCZdyUa+bdj6rV8PPBm/If3YO3oj
+                        qOC8xDb1LM3vIgrLiQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQCm+IhdKqYbbveYZzAYYQ/fumJ/
+                        NN8dinXhH/c0cnL/sG6ei6oUhlKbMjGDE7xhRRNkwsLS+D2/wUc8ff+Y/jd9yuxo9qh7tXtp4HA9
+                        qG2R+LcWFqPglda7qkqvvFWWFuXJMToNHhz8LxF54FkQQsa9zvjUuSbJ9n+1jODMY+1oFM0QxM/2
+                        vPRZ6I+Cjxr/D3uInx8VpXhCBBEHSR9q/ijz5LNJ/hQXJTyk2fiJr77GEXlonB7wftRfeTYNg98H
+                        +teUTGZVovilTZOzkdWbSgaw9TCn0Nn4RiwSyunoNi9z0YT94dCyIKd8IDNMXjkxr4bWC5XrDkWs
+                        XpD8pitgWR/7
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+        <md:KeyDescriptor use="encryption">
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:X509Data>
+                    <ds:X509Certificate>MIICsTCCAZkCBgGGvSP4YTANBgkqhkiG9w0BAQsFADAcMRowGAYDVQQDDBFqYWhpYS1zYW1sLWNs
+                        aWVudDAeFw0yMzAzMDcxNzMzMTZaFw0zMzAzMDcxNzM0NTZaMBwxGjAYBgNVBAMMEWphaGlhLXNh
+                        bWwtY2xpZW50MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApwC3hTgTnSuJ64dC/7Ec
+                        hOCUMVw5BE2TzbbwNJ4nJYwc0ZMmCxeq8wZeidonS9D0zxYJuvydM7v5levSwzZFXEYVMuJKvwDy
+                        UJK+uuZFI+48Ps/LDB/cdAYKv8j+NmocTcSzaNFhO3UntmrU5PmWL2sFI5BdylK5IwsUe3JJt/c7
+                        qf4KX1EsRCHGa/UnvmVoOq//p8RaQehC58agDilqetLUGugAsLVUocVPGh1WXpd5fvJtbHezPgij
+                        DeO/gr0QDd0aX6nKbCSrHu0OuiI5nYAnfXwx8EnrBwktCLCgWCZdyUa+bdj6rV8PPBm/If3YO3oj
+                        qOC8xDb1LM3vIgrLiQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQCm+IhdKqYbbveYZzAYYQ/fumJ/
+                        NN8dinXhH/c0cnL/sG6ei6oUhlKbMjGDE7xhRRNkwsLS+D2/wUc8ff+Y/jd9yuxo9qh7tXtp4HA9
+                        qG2R+LcWFqPglda7qkqvvFWWFuXJMToNHhz8LxF54FkQQsa9zvjUuSbJ9n+1jODMY+1oFM0QxM/2
+                        vPRZ6I+Cjxr/D3uInx8VpXhCBBEHSR9q/ijz5LNJ/hQXJTyk2fiJr77GEXlonB7wftRfeTYNg98H
+                        +teUTGZVovilTZOzkdWbSgaw9TCn0Nn4RiwSyunoNi9z0YT94dCyIKd8IDNMXjkxr4bWC5XrDkWs
+                        XpD8pitgWR/7
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </md:KeyDescriptor>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                Location="http://proxy:80/sites/digitall/home.samlCallback.do?client_name=SAML2Client&amp;logoutendpoint=true"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign"
+                                Location="http://proxy:80/sites/digitall/home.samlCallback.do?client_name=SAML2Client&amp;logoutendpoint=true"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                                Location="http://proxy:80/sites/digitall/home.samlCallback.do?client_name=SAML2Client&amp;logoutendpoint=true"/>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
+                                Location="http://proxy:80/sites/digitall/home.samlCallback.do?client_name=SAML2Client&amp;logoutendpoint=true"/>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+        <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                     Location="http://proxy:80/sites/digitall/home.samlCallback.do?client_name=SAML2Client"
+                                     index="0"/>
+    </md:SPSSODescriptor>
+</md:EntityDescriptor>

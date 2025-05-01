@@ -1,0 +1,5 @@
+plugins:
+  - id: analysis-icu
+  - id: analysis-smartcn
+  - id: analysis-kuromoji
+  - id: analysis-stempel

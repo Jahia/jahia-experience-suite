@@ -1,0 +1,309 @@
+name: jahia-jcustomer-full-env
+
+volumes:
+  esdata:
+  mariadb:
+  openldap_data:
+
+
+
+services:
+  mariadb:
+    image: '${MARIADB_IMAGE}'
+    hostname: mariadb
+    deploy:
+      resources:
+        limits:
+          memory: 1gb
+    networks:
+      - stack
+    command: --max_allowed_packet=1073741824 --transaction-isolation=READ-UNCOMMITTED --innodb-lock-wait-timeout=10
+    environment:
+      MYSQL_ROOT_PASSWORD: mariadbP@55
+      MYSQL_DATABASE: jahia
+      MYSQL_USER: jahia
+      MYSQL_PASSWORD: jahia
+      TZ: ${TIMEZONE}
+    volumes:
+      - mariadb:/var/lib/mysql
+
+  elasticsearch:
+    build:
+      context: ./images/elasticsearch
+      args:
+        ELASTICSEARCH_IMAGE: ${ELASTICSEARCH_IMAGE}
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - cluster.name=jahia-es-cluster
+      - ELASTIC_PASSWORD=${SUPER_USER_PASSWORD}
+      - TZ=${TIMEZONE}
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    hostname: elasticsearch
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=stack"
+      - "traefik.http.routers.elasticsearch.rule=Host(`elasticsearch.localhost`)"
+      - "traefik.http.routers.elasticsearch.entrypoints=http"
+      - "traefik.http.routers.elasticsearch.service=elasticsearch-http"
+      - "traefik.http.services.elasticsearch-http.loadbalancer.server.port=9200"
+    deploy:
+      resources:
+        limits:
+          memory: 2gb
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - stack
+    volumes: # Persist ES data in seperate "esdata" volume
+      - esdata:/usr/share/elasticsearch/data
+
+  jahia:
+    image: '${JAHIA_IMAGE}'
+    hostname: jahia
+    restart: 'no'
+    deploy:
+      resources:
+        limits:
+          memory: 2gb
+    networks:
+     stack:
+        ipv4_address: 172.16.1.30
+    depends_on:
+      - mariadb
+    ports:
+      - "8101:8101"
+      - "8000:8000"
+    extra_hosts:
+      - jahia:127.0.0.1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=stack"
+      - "traefik.http.routers.jahia.rule=Host(`jahia.localhost`) || HostRegexp(`^.+\\.jahia\\.localhost$`)"
+      - "traefik.http.routers.jahia.entrypoints=http"
+      - "traefik.http.routers.jahia.service=jahia-http"
+      - "traefik.http.services.jahia-http.loadbalancer.server.port=8080"
+    environment:
+      jahia_cfg_karaf_remoteShellHost: 0.0.0.0
+      DB_VENDOR: mariadb
+      DB_HOST: mariadb
+      DB_NAME: jahia
+      DB_USER: jahia
+      DB_PASS: jahia
+      SUPER_USER_PASSWORD: ${SUPER_USER_PASSWORD}
+      CLUSTER_ENABLED: '${JAHIA_CLUSTER_ENABLED}'
+      PROCESSING_SERVER: 'true'
+      MAX_RAM_PERCENTAGE: 95
+      JAHIA_PROPERTIES: ${JAHIA_PROPERTIES}
+      CATALINA_OPTS: ${CATALINA_OPTS}
+      RESTORE_MODULE_STATES: 'false'
+      TZ: ${TIMEZONE}
+      JPDA: 'true'
+      EXECUTE_PROVISIONING_SCRIPT: 'http://web/provisioning.yaml'
+    volumes:
+      - ./volumes/jahia/sources:/var/jahia/sources
+
+  kibana:
+    image: '${KIBANA_IMAGE}'
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - TZ=${TIMEZONE}
+      - xpack.security.enabled=true
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${SUPER_USER_PASSWORD}
+    hostname: kibana
+    deploy:
+      resources:
+        limits:
+          memory: 512mb
+    depends_on:
+      - elasticsearch
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=stack"
+      - "traefik.http.routers.kibana.rule=Host(`kibana.localhost`)"
+      - "traefik.http.routers.kibana.entrypoints=http"
+      - "traefik.http.routers.kibana.service=kibana-http"
+      - "traefik.http.services.kibana-http.loadbalancer.server.port=5601"
+    networks:
+      - stack
+
+  jcustomer:
+    image: ${UNOMI_IMAGE}
+    networks:
+      - stack
+    environment:
+      - UNOMI_ELASTICSEARCH_ADDRESSES=elasticsearch:9200
+      - UNOMI_ELASTICSEARCH_CLUSTERNAME=jahia-es-cluster
+      - UNOMI_ELASTICSEARCH_USERNAME=elastic
+      - UNOMI_ELASTICSEARCH_PASSWORD=${SUPER_USER_PASSWORD}
+      - UNOMI_CLUSTER_PUBLIC_ADDRESS=http://localhost:8181
+      - UNOMI_CLUSTER_INTERNAL_ADDRESS=https://jcustomer:9443
+      - UNOMI_THIRDPARTY_PROVIDER1_IPADDRESSES=172.16.1.30
+      - UNOMI_THIRDPARTY_PROVIDER1_ALLOWEDEVENTS=login,updateProperties
+      - JAVA_MAX_MEM=2G
+      - UNOMI_ROOT_PASSWORD=karaf
+      - UNOMI_HAZELCAST_TCPIP_MEMBERS=jcustomer
+      - JCUSTOMER_MAXMIND_GEOIP2_CITY_DATABASE_URL=${JCUSTOMER_MAXMIND_GEOIP2_CITY_DATABASE_URL}
+    ports:
+      - 9443:9443
+      - 8102:8102
+    deploy:
+      resources:
+        limits:
+          memory: 2gb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=stack"
+      - "traefik.http.routers.jcustomer.rule=Host(`jcustomer.localhost`)"
+      - "traefik.http.routers.jcustomer.entrypoints=http"
+      - "traefik.http.routers.jcustomer.service=jcustomer-http"
+      - "traefik.http.services.jcustomer-http.loadbalancer.server.port=8181"
+    depends_on:
+      - elasticsearch
+
+  web:
+    image: nginx
+    hostname: web
+    deploy:
+      resources:
+        limits:
+          memory: 128mb
+    volumes:
+      - ./provisioning:/usr/share/nginx/html:ro
+    networks:
+        - stack
+
+  ldap:
+    image: bitnami/openldap:latest
+    hostname: dockerldap
+    deploy:
+      resources:
+        limits:
+          memory: 128mb
+    ports:
+      - '1389:1389'
+      - '1636:1636'
+    environment:
+      - LDAP_ADMIN_USERNAME=admin
+      - LDAP_ADMIN_PASSWORD=adminpassword
+      - LDAP_USERS=user01,user02
+      - LDAP_PASSWORDS=password1,password2
+      - LDAP_ROOT=dc=jahia,dc=com
+      - LDAP_ADMIN_DN=cn=admin,dc=jahia,dc=com
+      - BITNAMI_DEBUG=true
+      - LDAP_LOGLEVEL=32768
+    networks:
+      - stack
+    volumes:
+      - ./volumes/ldap/ldifs:/ldifs
+      - openldap_data:/bitnami/openldap
+
+  phpldapadmin:
+    image: 'phpldapadmin/phpldapadmin:latest'
+    hostname: 'phpldapadmin'
+    environment:
+      LDAP_HOST: 'dockerldap'
+      LDAP_PORT: '1389'
+      LDAP_BASE_DN: 'dc=jahia,dc=com'
+      LDAP_ALLOW_GUEST: true
+      APP_KEY: 'base64:hS60TEid82EFLHNiZlPDVf8NQ0KR2apY9CZ1gVZ4N94='
+      APP_URL: 'http://phpldapadmin.localhost'
+    depends_on:
+      - 'ldap'
+    deploy:
+      resources:
+        limits:
+          memory: 512mb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=stack"
+      - "traefik.http.routers.phpldapadmin.rule=Host(`phpldapadmin.localhost`)"
+      - "traefik.http.routers.phpldapadmin.entrypoints=http"
+      - "traefik.http.routers.phpldapadmin.service=phpldapadmin-http"
+      - "traefik.http.services.phpldapadmin-http.loadbalancer.server.port=8080"
+    networks:
+      - stack
+
+  phpmyadmin:
+    image: 'phpmyadmin/phpmyadmin:latest'
+    hostname: 'phpmyadmin'
+    environment:
+      PMA_ABSOLUTE_URI: 'http://phpmyadmin.localhost'
+      PMA_HOST: 'mariadb'
+    depends_on:
+      - 'mariadb'
+    deploy:
+      resources:
+        limits:
+          memory: 256mb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=stack"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.localhost`)"
+      - "traefik.http.routers.phpmyadmin.entrypoints=http"
+      - "traefik.http.routers.phpmyadmin.service=phpmyadmin-http"
+      - "traefik.http.services.phpmyadmin-http.loadbalancer.server.port=80"
+    networks:
+      - stack
+
+  keycloak:
+#    image: quay.io/keycloak/keycloak:21.0
+    image: keycloak/keycloak:latest
+    hostname: keycloak
+    deploy:
+      resources:
+        limits:
+          memory: 512mb
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: 'admin'
+      KC_BOOTSTRAP_ADMIN_PASSWORD: 'admin'
+    volumes:
+      # https://www.keycloak.org/server/importExport
+      # To export: /opt/keycloak/bin/kc.sh export --dir /opt/keycloak/data/import --realm realm-idp
+      - ./volumes/keycloak/realm-config:/opt/keycloak/data/import
+      - ./volumes/keycloak/providers:/opt/keycloak/providers
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=stack"
+      - "traefik.http.routers.keycloak.rule=Host(`keycloak.localhost`)"
+      - "traefik.http.routers.keycloak.entrypoints=http"
+      - "traefik.http.routers.keycloak.service=keycloak-http"
+      - "traefik.http.services.keycloak-http.loadbalancer.server.port=8080"
+    command: 'start-dev --import-realm'
+    networks:
+      - stack
+
+  reverse-proxy:
+    # The official v3 Traefik docker image
+    image: traefik:v3.3
+    hostname: proxy
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    deploy:
+      resources:
+        limits:
+          memory: 128mb
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "9080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - stack
+
+networks:
+  stack:
+    name: jahia-jcustomer-full-env
+    driver: bridge
+    ipam:
+        driver: default
+        config:
+          - subnet: 172.16.1.0/24
+

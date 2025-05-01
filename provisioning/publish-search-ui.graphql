@@ -1,0 +1,7 @@
+mutation {
+    jcr(workspace: EDIT) {
+        mutateNode(pathOrId: "/sites/digitall/home/search-results/area-main") {
+            publish(languages: "en", includeSubTree: true, publishSubNodes: true)
+        }
+    }
+}
