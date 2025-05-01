@@ -2,6 +2,19 @@
 
 A comprehensive Docker-based environment for Jahia development and testing. This project provides a complete Jahia digital experience platform stack with integrated authentication, personalization, content management, and search capabilities.
 
+## Getting Started
+
+1. Clone this repository
+2. Configure environment variables in `.env` file (start by copying `env.example` to `.env`)
+3. Start the environment with `docker compose up -d`
+4. Access services through their respective hostnames:
+    - Jahia: http://jahia.localhost
+    - jCustomer: http://jcustomer.localhost
+    - Keycloak: http://keycloak.localhost
+    - phpLDAPadmin: http://phpldapadmin.localhost
+    - phpMyAdmin: http://phpmyadmin.localhost
+    - Kibana: http://kibana.localhost
+
 ## Components
 
 ### Core Services
@@ -33,18 +46,6 @@ The environment uses Docker Compose to orchestrate all services within a single 
 3. **Search**: Elasticsearch powers the Augmented Search functionality in Jahia
 4. **Monitoring**: Kibana provides analytics dashboards for user behavior
 
-## Getting Started
-
-1. Clone this repository
-2. Configure environment variables in `.env` file (start by copying `env.example` to `.env`)
-3. Start the environment with `docker compose up -d`
-4. Access services through their respective hostnames:
-    - Jahia: http://jahia.localhost
-    - jCustomer: http://jcustomer.localhost
-    - Keycloak: http://keycloak.localhost
-    - phpLDAPadmin: http://phpldapadmin.localhost
-    - phpMyAdmin: http://phpmyadmin.localhost
-    - Kibana: http://kibana.localhost
 
 ## Resource Allocations
 
