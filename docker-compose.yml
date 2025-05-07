@@ -1,4 +1,4 @@
-name: jahia-jcustomer-full-env
+name: jahia-experience-suite
 
 volumes:
   esdata:
@@ -61,6 +61,31 @@ services:
     volumes: # Persist ES data in seperate "esdata" volume
       - esdata:/usr/share/elasticsearch/data
 
+  kibana:
+    image: '${KIBANA_IMAGE}'
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - TZ=${TIMEZONE}
+      - xpack.security.enabled=true
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${SUPER_USER_PASSWORD}
+    hostname: kibana
+    deploy:
+      resources:
+        limits:
+          memory: 512mb
+    depends_on:
+      - elasticsearch
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=stack"
+      - "traefik.http.routers.kibana.rule=Host(`kibana.localhost`)"
+      - "traefik.http.routers.kibana.entrypoints=http"
+      - "traefik.http.routers.kibana.service=kibana-http"
+      - "traefik.http.services.kibana-http.loadbalancer.server.port=5601"
+    networks:
+      - stack
+
   jahia:
     image: '${JAHIA_IMAGE}'
     hostname: jahia
@@ -68,7 +93,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2gb
+          memory: 3gb
     networks:
      stack:
         ipv4_address: 172.16.1.30
@@ -106,30 +131,46 @@ services:
     volumes:
       - ./volumes/jahia/sources:/var/jahia/sources
 
-  kibana:
-    image: '${KIBANA_IMAGE}'
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - TZ=${TIMEZONE}
-      - xpack.security.enabled=true
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=${SUPER_USER_PASSWORD}
-    hostname: kibana
+  jahia-browsing:
+    image: '${JAHIA_IMAGE}'
+    restart: 'no'
     deploy:
       resources:
         limits:
-          memory: 512mb
+          memory: 3gb
+    networks:
+      - stack
     depends_on:
-      - elasticsearch
+      - jahia
+    scale: ${BROWSING_NODES}
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=stack"
-      - "traefik.http.routers.kibana.rule=Host(`kibana.localhost`)"
-      - "traefik.http.routers.kibana.entrypoints=http"
-      - "traefik.http.routers.kibana.service=kibana-http"
-      - "traefik.http.services.kibana-http.loadbalancer.server.port=5601"
-    networks:
-      - stack
+      - "traefik.http.routers.jahiabrowsing.rule=Host(`jahiabrowsing.localhost`) || HostRegexp(`^.+\\.jahiabrowsing\\.localhost$`)"
+      - "traefik.http.routers.jahiabrowsing.entrypoints=http"
+      - "traefik.http.routers.jahiabrowsing.service=jahiabrowsing-http"
+      - "traefik.http.services.jahiabrowsing-http.loadbalancer.server.port=8080"
+      - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.httponly=true"
+      - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.name=jahia_session"
+      - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.secure=true"
+    environment:
+      jahia_cfg_karaf_remoteShellHost: 0.0.0.0
+      DB_VENDOR: mariadb
+      DB_HOST: mariadb
+      DB_NAME: jahia
+      DB_USER: jahia
+      DB_PASS: jahia
+      SUPER_USER_PASSWORD: ${SUPER_USER_PASSWORD}
+      CLUSTER_ENABLED: '${JAHIA_CLUSTER_ENABLED}'
+      PROCESSING_SERVER: 'false'
+      PROCESSING_HOST: jahia
+      MAX_RAM_PERCENTAGE: 95
+      JAHIA_PROPERTIES: ${JAHIA_PROPERTIES}
+      CATALINA_OPTS: ${CATALINA_OPTS}
+      RESTORE_MODULE_STATES: 'false'
+      TZ: ${TIMEZONE}
+    profiles:
+      - cluster
 
   jcustomer:
     image: ${UNOMI_IMAGE}
@@ -227,6 +268,8 @@ services:
       - "traefik.http.services.phpldapadmin-http.loadbalancer.server.port=8080"
     networks:
       - stack
+    profiles:
+      - admin
 
   phpmyadmin:
     image: 'phpmyadmin/phpmyadmin:latest'
@@ -249,6 +292,8 @@ services:
       - "traefik.http.services.phpmyadmin-http.loadbalancer.server.port=80"
     networks:
       - stack
+    profiles:
+      - admin
 
   keycloak:
 #    image: quay.io/keycloak/keycloak:21.0

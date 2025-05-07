@@ -51,6 +51,7 @@
     - 'mvn:org.jahia.modules/jahia-authentication/RELEASE'
     - 'mvn:org.jahia.modules/jcr-auth-provider/RELEASE'
     - 'mvn:org.jahia.modules/saml-authentication-valve/RELEASE'
+    - 'mvn:org.jahia.modules/cas-authentication-valve/RELEASE'
     - 'mvn:org.jahia.modules/javascript-modules-engine/RELEASE'
   autoStart: true
   uninstallPreviousVersion: true
@@ -131,9 +132,14 @@
   site: "digitall"
 
 - installConfiguration: "http://web/org.jahia.modules.auth-digitall.cfg"
+- installConfiguration: "http://web/org.jahia.modules.cas.CasAuthValve.cfg"
 
-# COnfigure group editor in chief for each site as well as domain name
+# Configure group editor-in-chief for each site as well as domain name
 - executeScript: "http://web/update-sites.graphql"
+
+# Configure the default site
+- executeScript: "http://web/switch-default-site.groovy"
+
 # Add SAML Login button below the slider in Digitall home
 - executeScript: "http://web/add-saml-login.graphql"
 

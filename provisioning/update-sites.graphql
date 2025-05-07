@@ -2,14 +2,20 @@ mutation {
   jcr {
     digitall: mutateNode(pathOrId: "/sites/digitall") {
       grantRoles(principalName: "editor-in-chief", roleNames: ["editor-in-chief"], principalType: GROUP)
-      mutateProperty(name: "j:serverName" ) {
+      serverName: mutateProperty(name: "j:serverName" ) {
         setValue(value: "digitall.jahia.localhost")
+      }
+      serverNameAliases: mutateProperty(name: "j:serverNameAliases")  {
+        setValues(values: ["digitall.jahiabrowsing.localhost"])
       }
     }
     luxe: mutateNode(pathOrId: "/sites/luxe") {
       grantRoles(principalName: "editor-in-chief", roleNames: ["editor-in-chief"], principalType: GROUP)
-      mutateProperty(name: "j:serverName" ) {
+      serverName: mutateProperty(name: "j:serverName" ) {
         setValue(value: "luxe.jahia.localhost")
+      }
+      serverNameAliases: mutateProperty(name: "j:serverNameAliases")  {
+        setValues(values: ["luxe.jahiabrowsing.localhost"])
       }
     }
   }
