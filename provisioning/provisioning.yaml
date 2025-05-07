@@ -125,10 +125,10 @@
 # Configure jExperience
 - editConfiguration: "org.jahia.modules.kibana_dashboards_provider"
   properties:
-    kibana_dashboards_provider.kibanaURL: "http://kibana.localhost"
+    kibana_dashboards_provider.kibanaURL: "http://kibana"
     kibana_dashboards_provider.kibanaPassword: "root1234"
 
-- enable: ["saml-authentication-valve", "jahia-authentication", "jcr-auth-provider"]
+- enable: ["saml-authentication-valve", "cas-authentication-valve", "jahia-authentication", "jcr-auth-provider"]
   site: "digitall"
 
 - installConfiguration: "http://web/org.jahia.modules.auth-digitall.cfg"

@@ -79,7 +79,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=stack"
-      - "traefik.http.routers.kibana.rule=Host(`kibana.localhost`)"
+      - "traefik.http.routers.kibana.rule=Host(`kibana.localhost`) || Host(`kibana`)"
       - "traefik.http.routers.kibana.entrypoints=http"
       - "traefik.http.routers.kibana.service=kibana-http"
       - "traefik.http.services.kibana-http.loadbalancer.server.port=5601"
@@ -345,7 +345,7 @@ services:
 
 networks:
   stack:
-    name: jahia-jcustomer-full-env
+    name: jahia-experience-suite-network
     driver: bridge
     ipam:
         driver: default
