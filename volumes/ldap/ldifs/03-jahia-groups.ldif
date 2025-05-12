@@ -1,0 +1,33 @@
+dn: ou=jahia,ou=performance,dc=jahia,dc=com
+ou: jahia
+objectClass: top
+objectClass: organizationalUnit
+
+dn: cn=jahia-admin,ou=jahia,ou=performance,dc=jahia,dc=com
+uniqueMember: cn=Kieron Ovans,ou=Product Testing,ou=performance,dc=jahia,dc=com
+cn: jahia-admin
+objectClass: groupOfUniqueNames
+objectClass: top
+
+
+dn: ou=digitall-site,ou=jahia,ou=performance,dc=jahia,dc=com
+ou: digitall-site
+objectClass: top
+objectClass: organizationalUnit
+
+dn: cn=digitall-editor-in-chief,ou=digitall-site,ou=jahia,ou=performance,dc=jahia,dc=com
+uniqueMember: cn=Susannah Monzo,ou=Management,ou=performance,dc=jahia,dc=com
+cn: digitall-editor-in-chief
+objectClass: groupOfUniqueNames
+objectClass: top
+
+dn: ou=luxe-site,ou=jahia,ou=performance,dc=jahia,dc=com
+ou: luxe-site
+objectClass: top
+objectClass: organizationalUnit
+
+dn: cn=luxe-editor-in-chief,ou=luxe-site,ou=jahia,ou=performance,dc=jahia,dc=com
+uniqueMember: cn=Susannah Monzo,ou=Management,ou=performance,dc=jahia,dc=com
+cn: luxe-editor-in-chief
+objectClass: groupOfUniqueNames
+objectClass: top

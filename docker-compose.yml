@@ -272,7 +272,7 @@ services:
       - admin
 
   phpmyadmin:
-    image: 'phpmyadmin/phpmyadmin:latest'
+    image: 'phpmyadmin:latest'
     hostname: 'phpmyadmin'
     environment:
       PMA_ABSOLUTE_URI: 'http://phpmyadmin.localhost'

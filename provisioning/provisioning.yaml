@@ -74,8 +74,8 @@
 - karafCommand: "log:log 'Luxe site imported'"
 
 - installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap.cfg"
-- installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap-digitall.cfg"
-- installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap-luxe.cfg"
+#- installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap-digitall.cfg"
+#- installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap-luxe.cfg"
 - karafCommand: "log:log 'LDAP configuration installed'"
 
 # Sleep for 5 seconds to ensure LDAP is up
@@ -159,7 +159,7 @@
 - karafCommand: "log:log 'authentication configuration installed'"
 
 # Configure group editor-in-chief for each site as well as domain name
-- executeScript: "http://web/update-sites.graphql"
+- executeScript: "http://web/update-sites.groovy"
 - karafCommand: "log:log 'sites updated'"
 
 # Configure the default site
