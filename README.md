@@ -14,6 +14,8 @@ A comprehensive Docker-based environment for Jahia development and testing. This
     - phpLDAPadmin: http://phpldapadmin.localhost
     - phpMyAdmin: http://phpmyadmin.localhost
     - Kibana: http://kibana.localhost
+    - Traefik dashboard: http://localhost:9080/dashboard/
+    - Mail SMTP4dev: http://mailserver.localhost
 
 ## Components
 
@@ -24,6 +26,7 @@ A comprehensive Docker-based environment for Jahia development and testing. This
 - **MariaDB**: Database server for storing Jahia's content and user data
 - **Elasticsearch**: Search and analytics engine supporting content search functionality
 - **Kibana**: Data visualization dashboard for Elasticsearch
+- **SMTP4dev**: Local SMTP server for testing email functionality
 
 ### Authentication & User Management
 
@@ -56,6 +59,7 @@ The Docker Compose configuration specifies resource limits for containers:
 - Keycloak: 512MB memory
 - phpLDAPadmin: 512MB memory
 - phpMyAdmin: 256MB memory
+- SMTP4dev: 256MB memory
 - Lighter services (web, LDAP, reverse-proxy): 128MB memory each
 
 ## Configuration
@@ -111,14 +115,6 @@ The realm connects to OpenLDAP with these settings:
 - **Username LDAP Attribute**: `cn`
 - **RDN LDAP Attribute**: `uid`
 - **UUID LDAP Attribute**: `entryUUID`
-
-#### Client Scopes
-
-Predefined scopes include:
-
-- `jahia-profile`: Basic user information
-- `jahia-roles`: User roles and permissions
-- `offline_access`: For refresh tokens
 
 #### Authentication Flow
 
@@ -234,3 +230,12 @@ Since the environment includes multiple services with varying resource requireme
 - Traffic prioritization based on service types
 
 The Docker labels provide a declarative way to define how Traefik should direct incoming traffic to the appropriate containers without needing a separate configuration file.
+
+
+# Jahia Experience Suite Environment User
+Two users are created in the Jahia Experience Suite environment:
+- **ovansk**: The default administrator user with full access to all features and settings. (Username: `ovansk`, Password: `Ovans`)
+- **monzos**: An eidtor in chief user for digitall and luxe website. (Username: `monzos`, Password: `Monzo`)
+
+### CAS Link
+To test the CAS authentication, just hit [this link](http://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=http%3A%2F%2Fjahia.localhost%2Fcms%2Frender%2Flive%2Fen%2Fsites%2Fdigitall%2Fhome.html).

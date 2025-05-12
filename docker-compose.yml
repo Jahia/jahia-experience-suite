@@ -322,6 +322,23 @@ services:
     networks:
       - stack
 
+  mail:
+    image: rnwood/smtp4dev:latest
+    hostname: mail
+    deploy:
+      resources:
+        limits:
+          memory: 256mb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=stack"
+      - "traefik.http.routers.mailserver.rule=Host(`mailserver.localhost`)"
+      - "traefik.http.routers.mailserver.entrypoints=http"
+      - "traefik.http.routers.mailserver.service=mailserver-http"
+      - "traefik.http.services.mailserver-http.loadbalancer.server.port=80"
+    networks:
+      - stack
+
   reverse-proxy:
     # The official v3 Traefik docker image
     image: traefik:v3.3

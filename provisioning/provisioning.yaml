@@ -1,5 +1,7 @@
+- karafCommand: "log:log 'Starting provisioning'"
 # Create a token
 - executeScript: "http://web/create-token.groovy"
+- karafCommand: "log:log 'Token created'"
 
 # For more details about the provisioning API, you can refer to the Academy: https://academy.jahia.com/home
 # You can also find some details here: https://github.com/Jahia/jahia-private/blob/master/bundles/provisioning/README.md
@@ -29,10 +31,12 @@
   - 'mvn:org.jahia.modules/tabularList/RELEASE'
   autoStart: true
   uninstallPreviousVersion: true
+- karafCommand: "log:log 'Bundles for digitall site installed'"
 
 # Import the Digitall site
 - import: "jar:mvn:org.jahia.modules/digitall/3.0.0/zip/import!/users.zip"
 - importSite: "jar:mvn:org.jahia.modules/digitall/3.0.0/zip/import!/Digitall.zip"
+- karafCommand: "log:log 'Digitall site imported'"
 
 # Augmented-Search dependencies are only available from Jahia store
 # So we're adding a new repository to be able to resolve these dependencies
@@ -46,6 +50,7 @@
   - 'mvn:org.jahia.modules/elasticsearch-connector/RELEASE'
   autoStart: true
   uninstallPreviousVersion: true
+- karafCommand: "log:log 'Bundles for Augmented Search installed'"
 
 - installBundle:
     - 'mvn:org.jahia.modules/jahia-authentication/RELEASE'
@@ -55,43 +60,56 @@
     - 'mvn:org.jahia.modules/javascript-modules-engine/RELEASE'
   autoStart: true
   uninstallPreviousVersion: true
+- karafCommand: "log:log 'Bundles for authentication installed'"
 
 # Install the Luxe demo site
 - installBundle:
     - 'js:mvn:org.jahia.modules.javascript/luxe-jahia-demo/0.6.1/tgz'
-  autoStart: true
-  uninstallPreviousVersion: true
-
-- installBundle:
     - 'mvn:org.jahia.modules/luxe-prepackaged-website/0.6.1'
   autoStart: true
   uninstallPreviousVersion: true
+- karafCommand: "log:log 'Luxe site installed'"
 
 - importSite: "jar:mvn:org.jahia.modules/luxe-prepackaged-website/0.6.1/zip/import!/luxe.zip"
+- karafCommand: "log:log 'Luxe site imported'"
 
 - installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap.cfg"
 - installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap-digitall.cfg"
 - installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap-luxe.cfg"
+- karafCommand: "log:log 'LDAP configuration installed'"
+
+# Sleep for 5 seconds to ensure LDAP is up
+- sleep: 5000
 
 # Enable Augmented Search sample UI on Digitall
 - enable: "augmented-search-ui"
   site: "digitall"
-
+- karafCommand: "log:log 'augmented-search-ui enabled on digitall'"
 # Configure database connector with a groovy script
 - executeScript: "http://web/db-connection.groovy"
+- karafCommand: "log:log 'Augmented Search / Elasticsearch connection configured'"
 
 # Configure Augmented Search and digitall
 - executeScript: "http://web/as-config.graphql"
+- karafCommand: "log:log 'augmented-search configured'"
 
 # Add Augmented-Search UI module in the search results instead of default one
 - executeScript: "http://web/add-search-ui.graphql"
+- karafCommand: "log:log 'augmented-search-ui added to search results'"
 
 # Publish Augmented-Search UI
 - executeScript: "http://web/publish-search-ui.graphql"
+- karafCommand: "log:log 'augmented-search-ui published'"
 
 # Trigger a full indexation
 - executeScript: "http://web/as-index.graphql"
+- karafCommand: "log:log 'augmented-search indexation triggered'"
 
+# Configure Kibana Dashboards Provider
+- editConfiguration: "org.jahia.modules.kibana_dashboards_provider"
+  properties:
+    kibana_dashboards_provider.kibanaURL: "http://kibana:5601"
+    kibana_dashboards_provider.kibanaPassword: "root1234"
 
 # Install and start bundles for Forms and jExperience
 - installBundle:
@@ -106,10 +124,17 @@
   - 'mvn:org.jahia.modules/jexperience-forms-bridge/RELEASE'
   autoStart: true
   uninstallPreviousVersion: true
+- karafCommand: "log:log 'Bundles for Forms and jExperience installed'"
 
-# Enable jExperience on digitall
+# Enable jExperience on digitall,luxe
 - enable: "jexperience"
   site: ["digitall", "luxe"]
+- karafCommand: "log:log 'jExperience enabled on digitall and luxe'"
+
+# Enable kibana-dashboards-provider on digitall,luxe
+- enable: "kibana-dashboards-provider"
+  site: ["digitall", "luxe"]
+- karafCommand: "log:log 'kibana-dashboards-provider enabled on digitall and luxe'"
 
 # Configure jExperience
 - editConfiguration: "org.jahia.modules.jexperience.settings"
@@ -121,27 +146,40 @@
     jexperience.jCustomerTrustAllCertificates: "true"
     jexperience.jCustomerUsePublicAddressesForAdmin: "false"
     jexperience.jCustomerKey: "670c26d1cc413346c3b2fd9ce65dab41"
+- karafCommand: "log:log 'jExperience configured'"
 
-# Configure jExperience
-- editConfiguration: "org.jahia.modules.kibana_dashboards_provider"
-  properties:
-    kibana_dashboards_provider.kibanaURL: "http://kibana"
-    kibana_dashboards_provider.kibanaPassword: "root1234"
+- karafCommand: "log:log 'kibana-dashboards-provider configured'"
 
 - enable: ["saml-authentication-valve", "cas-authentication-valve", "jahia-authentication", "jcr-auth-provider"]
   site: "digitall"
+- karafCommand: "log:log 'authentication enabled on digitall'"
 
 - installConfiguration: "http://web/org.jahia.modules.auth-digitall.cfg"
 - installConfiguration: "http://web/org.jahia.modules.cas.CasAuthValve.cfg"
+- karafCommand: "log:log 'authentication configuration installed'"
 
 # Configure group editor-in-chief for each site as well as domain name
 - executeScript: "http://web/update-sites.graphql"
+- karafCommand: "log:log 'sites updated'"
 
 # Configure the default site
 - executeScript: "http://web/switch-default-site.groovy"
+- karafCommand: "log:log 'default site switched'"
 
 # Add SAML Login button below the slider in Digitall home
 - executeScript: "http://web/add-saml-login.graphql"
+- karafCommand: "log:log 'saml login button added to digitall home'"
 
 # Publish SAML Button
 - executeScript: "http://web/publish-saml-login.graphql"
+- karafCommand: "log:log 'saml login button published'"
+
+# Configure the default site
+- executeScript: "http://web/grant-jahia-admin-group.groovy"
+- karafCommand: "log:log 'jahia-admin group granted root access'"
+
+# Configure the mail server
+- executeScript: "http://web/activate-mail-server.groovy"
+- karafCommand: "log:log 'mail server activated'"
+
+- karafCommand: "log:log 'Provisioning completed'"
