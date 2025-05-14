@@ -1,6 +1,23 @@
 # Jahia Experience Suite
 
-A comprehensive Docker-based environment for Jahia development and testing. This project provides a complete Jahia digital experience platform stack with integrated authentication, personalization, content management, and search capabilities.
+A comprehensive Docker-based environment for Jahia development and testing. This project provides a complete Jahia
+digital experience platform stack with integrated authentication, personalization, content management, and search
+capabilities.
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Components](#components)
+- [Architecture](#architecture)
+- [Resource Allocations](#resource-allocations)
+- [Configuration](#configuration)
+- [Networking](#networking)
+- [Authentication](#authentication)
+- [Jahia Configuration : provisioning/provisioning.yaml](#jahia-configuration--provisioningprovisioningyaml)
+- [Traefik Configuration in the Jahia Experience Suite](#traefik-configuration-in-the-jahia-experience-suite)
+- [Jahia Experience Suite Environment User](#jahia-experience-suite-environment-user)
+- [CAS Link](#cas-link)
+- [Clustering](#clustering)
 
 ## Getting Started
 
@@ -42,17 +59,18 @@ A comprehensive Docker-based environment for Jahia development and testing. This
 
 ## Architecture
 
-The environment uses Docker Compose to orchestrate all services within a single network called `jahia-jcustomer-full-env`. Key integration points include:
+The environment uses Docker Compose to orchestrate all services within a single network called
+`jahia-jcustomer-full-env`. Key integration points include:
 
 1. **Authentication Flow**: Keycloak integrates with LDAP for user storage and provides SAML/OAuth for Jahia
 2. **Personalization**: jCustomer collects user data and provides personalization services to Jahia
 3. **Search**: Elasticsearch powers the Augmented Search functionality in Jahia
 4. **Monitoring**: Kibana provides analytics dashboards for user behavior
 
-
 ## Resource Allocations
 
 The Docker Compose configuration specifies resource limits for containers:
+
 - jCustomer: 2GB memory
 - Elasticsearch: 2GB memory
 - Kibana: 1GB memory
@@ -65,6 +83,7 @@ The Docker Compose configuration specifies resource limits for containers:
 ## Configuration
 
 The environment uses provisioning scripts to set up:
+
 - Demo sites (Digitall, Luxe)
 - LDAP authentication
 - jCustomer integration
@@ -75,12 +94,15 @@ The environment uses provisioning scripts to set up:
 
 All containers communicate through the `stack` network with subnet `172.16.1.0/24`.
 
-
 ## Authentication
-The environment uses Keycloak for authentication, which is configured to use OpenLDAP as the user store. The Keycloak server is accessible at `http://keycloak.localhost/auth` and can be managed through its web interface.
+
+The environment uses Keycloak for authentication, which is configured to use OpenLDAP as the user store. The Keycloak
+server is accessible at `http://keycloak.localhost/auth` and can be managed through its web interface.
+
 ### Keycloak Realm-IDP Configuration
 
-The `realm-idp` in Keycloak serves as a central identity provider with both SAML and CAS integration for the Jahia Experience Suite environment.
+The `realm-idp` in Keycloak serves as a central identity provider with both SAML and CAS integration for the Jahia
+Experience Suite environment.
 
 #### SAML Configuration
 
@@ -127,9 +149,10 @@ The realm is configured with a custom authentication flow that includes:
 
 This configuration enables seamless single sign-on across all services in the Jahia Experience Suite.
 
-# Jahia Configuration : provisioning/provisioning.yaml
+## Jahia Configuration : provisioning/provisioning.yaml
 
-The `provisioning.yaml` file defines the automated setup and configuration of the Jahia Experience Suite environment. It follows a declarative approach to install components, configure services, and integrate various features.
+The `provisioning.yaml` file defines the automated setup and configuration of the Jahia Experience Suite environment. It
+follows a declarative approach to install components, configure services, and integrate various features.
 
 ## Core Components
 
@@ -146,9 +169,9 @@ The `provisioning.yaml` file defines the automated setup and configuration of th
 3. **Search & Analytics**:
     - Augmented Search with Elasticsearch integration
     - Custom search UI components
-      - The setup includes:
-        - Removing default search components
-        - Adding Augmented Search UI components in the search result page
+        - The setup includes:
+            - Removing default search components
+            - Adding Augmented Search UI components in the search result page
     - Configuration of search indexes
     - Trigger an indexation
 
@@ -158,7 +181,8 @@ The `provisioning.yaml` file defines the automated setup and configuration of th
     - JCR auth provider
     - Authentication UI components
         - SAML Login button on home page
-        - To test the CAS authentication, just hit http://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=http%3A%2F%2Fjahia.localhost%2Fcms%2Frender%2Flive%2Ffr%2Fsites%2Fdigitall%2Fhome.html
+        - To test the CAS authentication, just
+          hit http://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=http%3A%2F%2Fjahia.localhost%2Fcms%2Frender%2Flive%2Ffr%2Fsites%2Fdigitall%2Fhome.html
 
 5. **Customer Experience**:
     - jExperience for personalization
@@ -175,29 +199,34 @@ The `provisioning.yaml` file defines the automated setup and configuration of th
 ## Automation
 
 The provisioning uses several mechanisms:
+
 - Script execution (`executeScript`) for complex operations
 - Bundle installations from Maven repositories
 - GraphQL operations for content manipulation
 - Configuration file installations for service configuration
 - Site imports from packaged ZIP archives
 
-This configuration creates a fully functional Jahia environment with integrated authentication, personalization, search, and demo content.
+This configuration creates a fully functional Jahia environment with integrated authentication, personalization, search,
+and demo content.
 
-# Traefik Configuration in the Jahia Experience Suite
+## Traefik Configuration in the Jahia Experience Suite
 
-Based on the provided information, Traefik serves as the modern reverse proxy and load balancer for the Jahia Experience Suite environment. Although the specific Docker label configurations aren't explicitly shown in the files provided, I can infer how Traefik is likely configured with Docker labels in this setup:
+Based on the provided information, Traefik serves as the modern reverse proxy and load balancer for the Jahia Experience
+Suite environment.
 
-## General Traefik Configuration
+### General Traefik Configuration
 
 Traefik is configured using Docker labels on each service container to:
+
 - Define routing rules
 - Enable TLS/SSL if needed
 - Configure middleware
 - Set load balancing options
 
-## Service Routing
+### Service Routing
 
 Each service in the stack is accessible through hostname-based routing:
+
 - `jahia.localhost` → Jahia DXP
 - `jcustomer.localhost` → jCustomer (Unomi)
 - `keycloak.localhost` → Keycloak authentication server
@@ -205,7 +234,7 @@ Each service in the stack is accessible through hostname-based routing:
 - `phpmyadmin.localhost` → Database admin interface
 - `kibana.localhost` → Elasticsearch visualization
 
-## Docker Labels Pattern
+### Docker Labels Pattern
 
 The Docker Compose file would typically include labels like:
 
@@ -218,24 +247,70 @@ services:
       - "traefik.http.services.jahia.loadbalancer.server.port=8080"
 ```
 
-## Network Configuration
+Here is more thorough explanation of the labels:
+```yaml
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=stack"
+      - "traefik.http.routers.jahiabrowsing.rule=Host(`jahiabrowsing.localhost`) || HostRegexp(`^.+\\.jahiabrowsing\\.localhost$`)"
+      - "traefik.http.routers.jahiabrowsing.entrypoints=http"
+      - "traefik.http.routers.jahiabrowsing.service=jahiabrowsing-http"
+      - "traefik.http.services.jahiabrowsing-http.loadbalancer.server.port=8080"
+      - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.httponly=true"
+      - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.name=jahia_session"
+      - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.secure=true"
+```
 
-Traefik connects to the `stack` network (subnet `172.16.1.0/24`) to access all services in the environment, serving as the entry point for external requests.
+### Network Configuration
 
-## Load Balancing Features
+Traefik connects to the `stack` network (subnet `172.16.1.0/24`) to access all services in the environment, serving as
+the entry point for external requests.
+
+### Load Balancing Features
 
 Since the environment includes multiple services with varying resource requirements, Traefik likely handles:
+
 - Health checking
 - Request distribution
 - Traffic prioritization based on service types
 
-The Docker labels provide a declarative way to define how Traefik should direct incoming traffic to the appropriate containers without needing a separate configuration file.
+The Docker labels provide a declarative way to define how Traefik should direct incoming traffic to the appropriate
+containers without needing a separate configuration file.
 
+## Jahia Experience Suite Environment User
 
-# Jahia Experience Suite Environment User
 Two users are created in the Jahia Experience Suite environment:
-- **ovansk**: The default administrator user with full access to all features and settings. (Username: `ovansk`, Password: `Ovans`)
+
+- **ovansk**: The default administrator user with full access to all features and settings. (Username: `ovansk`,
+  Password: `Ovans`)
 - **monzos**: An eidtor in chief user for digitall and luxe website. (Username: `monzos`, Password: `Monzo`)
 
-### CAS Link
-To test the CAS authentication, just hit [this link](http://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=http%3A%2F%2Fjahia.localhost%2Fcms%2Frender%2Flive%2Fen%2Fsites%2Fdigitall%2Fhome.html).
+## CAS Link
+
+To test the CAS authentication, just
+hit [this link](http://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=http%3A%2F%2Fjahia.localhost%2Fcms%2Frender%2Flive%2Fen%2Fsites%2Fdigitall%2Fhome.html).
+
+
+## Clustering
+The Jahia Experience Suite environment is designed to support clustering for high availability and load balancing.
+This uses Docker Compose scale feature to create multiple instances of Jahia Browsing instances.
+
+### Scaling Jahia Browsing
+To scale the Jahia Browsing service, you can use the following command:
+
+```bash
+JAHIA_CLUSTER_ENABLED=true BROWSING_NODES=2 COMPOSE_PROFILES=cluster docker-compose up -d
+```
+
+You can alos update your `.env` file
+```env
+JAHIA_CLUSTER_ENABLED=true
+BROWSING_NODES=2
+COMPOSE_PROFILES=cluster,admin
+```
+
+Once the cluster is started you can scale jahia-browsing service using the following command:
+```bash
+docker-compose up -d --scale jahia-browsing=2
+docker-compose up -d --scale jahia-browsing=1
+```

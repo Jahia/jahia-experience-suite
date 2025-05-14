@@ -5,8 +5,6 @@ volumes:
   mariadb:
   openldap_data:
 
-
-
 services:
   mariadb:
     image: '${MARIADB_IMAGE}'
@@ -95,7 +93,7 @@ services:
         limits:
           memory: 3gb
     networks:
-     stack:
+      stack:
         ipv4_address: 172.16.1.30
     depends_on:
       - mariadb
@@ -216,7 +214,7 @@ services:
     volumes:
       - ./provisioning:/usr/share/nginx/html:ro
     networks:
-        - stack
+      - stack
 
   ldap:
     image: bitnami/openldap:latest
@@ -296,7 +294,7 @@ services:
       - admin
 
   keycloak:
-#    image: quay.io/keycloak/keycloak:21.0
+    #    image: quay.io/keycloak/keycloak:21.0
     image: keycloak/keycloak:latest
     hostname: keycloak
     deploy:
@@ -365,7 +363,7 @@ networks:
     name: jahia-experience-suite-network
     driver: bridge
     ipam:
-        driver: default
-        config:
-          - subnet: 172.16.1.0/24
+      driver: default
+      config:
+        - subnet: 172.16.1.0/24
 
