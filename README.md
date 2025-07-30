@@ -25,14 +25,31 @@ capabilities.
 2. Configure environment variables in `.env` file (start by copying `env.example` to `.env`)
 3. Start the environment with `docker compose up -d`
 4. Access services through their respective hostnames:
-    - Jahia: http://jahia.localhost
-    - jCustomer: http://jcustomer.localhost
+    - Jahia: http://jahia.localhost  
+      - Dashboard: http://jahia.localhost/cms/login?redirect=/jahia/dashboard  (username: `root`, password: `root1234`)
+      - Tools: http://jahia.localhost/cms/login?redirect=/tools  (username: `root`, password: `root1234`)
+    - Luxe website: http://luxe.jahia.localhost  
+      - SSO Authentication button is NOT included
+    - Digitall website: http://digitall.jahia.localhost  
+      - SSO authentication process using dedicated button `saml-button` (username: `monzos` password: `Monzo`) or (username: `ovansk`, password: `Ovans`)
+      - Login Form based authentication will use ldap, same users but no keycloak redirect (username: `monzos` password: `Monzo`) or (username: `ovansk`, password: `Ovans`) 
+    - jCustomer: http://jcustomer.localhost 
+      - credentials: karaf:karaf
+      - Sample curl: curl -u karaf:karaf -v http://jcustomer.localhost/cxs/scopes
     - Keycloak: http://keycloak.localhost
+      - Be aware that keycloak always have a 'master' realm, so do not confuse it with the `realm-idp` realm
+      - Access the Keycloak admin console at `http://keycloak.localhost/auth/admin` (username: `admin`, password: `admin`)
     - phpLDAPadmin: http://phpldapadmin.localhost
     - phpMyAdmin: http://phpmyadmin.localhost
+      - Super user: (username: `root`, password: `mariadbP@55`)
+      - Jahia user: (username: `jahia`, password: `jahia`)
     - Kibana: http://kibana.localhost
+      - (username: `elastic`, password: `root1234`)
     - Traefik dashboard: http://localhost:9080/dashboard/
     - Mail SMTP4dev: http://mailserver.localhost
+    - ElasticVue (using browser extension)
+       - Locate the elasticsearch container IP: `docker inspect jahia-experience-suite-elasticsearch-1 | grep IPAddress`
+       - config: `cluster name: jahia-es-cluster, uri: <elasticsearch-ip>:9200, username: elastic, password: root1234` 
 
 ## Components
 
@@ -283,7 +300,7 @@ Two users are created in the Jahia Experience Suite environment:
 
 - **ovansk**: The default administrator user with full access to all features and settings. (Username: `ovansk`,
   Password: `Ovans`)
-- **monzos**: An eidtor in chief user for digitall and luxe website. (Username: `monzos`, Password: `Monzo`)
+- **monzos**: An editor in chief user for digitall and luxe website. (Username: `monzos`, Password: `Monzo`)
 
 ## CAS Link
 
