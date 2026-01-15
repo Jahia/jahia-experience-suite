@@ -12,6 +12,7 @@ capabilities.
 - [Resource Allocations](#resource-allocations)
 - [Configuration](#configuration)
 - [Networking](#networking)
+- [TLS/SSL Configuration](#tlsssl-configuration)
 - [Authentication](#authentication)
 - [Jahia Configuration : provisioning/provisioning.yaml](#jahia-configuration--provisioningprovisioningyaml)
 - [Traefik Configuration in the Jahia Experience Suite](#traefik-configuration-in-the-jahia-experience-suite)
@@ -23,30 +24,33 @@ capabilities.
 
 1. Clone this repository
 2. Configure environment variables in `.env` file (start by copying `env.example` to `.env`)
+3. Run `docker compose pull` to download the required images
+4. (Optional) Generate self-signed SSL certificates
+5. Run `docker compose build` to build custom images
 3. Start the environment with `docker compose up -d`
 4. Access services through their respective hostnames:
-    - Jahia: http://jahia.localhost  
-      - Dashboard: http://jahia.localhost/cms/login?redirect=/jahia/dashboard  (username: `root`, password: `root1234`)
-      - Tools: http://jahia.localhost/cms/login?redirect=/tools  (username: `root`, password: `root1234`)
-    - Luxe website: http://luxe.jahia.localhost  
+    - Jahia: https://jahia.localhost  
+      - Dashboard: https://jahia.localhost/cms/login?redirect=/jahia/dashboard  (username: `root`, password: `root1234`)
+      - Tools: https://jahia.localhost/cms/login?redirect=/tools  (username: `root`, password: `root1234`)
+    - Luxe website: https://luxe.jahia.localhost  
       - SSO Authentication button is NOT included
-    - Digitall website: http://digitall.jahia.localhost  
+    - Digitall website: https://digitall.jahia.localhost  
       - SSO authentication process using dedicated button `saml-button` (username: `monzos` password: `Monzo`) or (username: `ovansk`, password: `Ovans`)
       - Login Form based authentication will use ldap, same users but no keycloak redirect (username: `monzos` password: `Monzo`) or (username: `ovansk`, password: `Ovans`) 
-    - jCustomer: http://jcustomer.localhost 
+    - jCustomer: https://jcustomer.localhost 
       - credentials: karaf:karaf
-      - Sample curl: curl -u karaf:karaf -v http://jcustomer.localhost/cxs/scopes
-    - Keycloak: http://keycloak.localhost
+      - Sample curl: curl -u karaf:karaf -v https://jcustomer.localhost/cxs/scopes
+    - Keycloak: https://keycloak.localhost
       - Be aware that keycloak always have a 'master' realm, so do not confuse it with the `realm-idp` realm
-      - Access the Keycloak admin console at `http://keycloak.localhost/auth/admin` (username: `admin`, password: `admin`)
-    - phpLDAPadmin: http://phpldapadmin.localhost
-    - phpMyAdmin: http://phpmyadmin.localhost
+      - Access the Keycloak admin console at `https://keycloak.localhost/auth/admin` (username: `admin`, password: `admin`)
+    - phpLDAPadmin: https://phpldapadmin.localhost
+    - phpMyAdmin: https://phpmyadmin.localhost
       - Super user: (username: `root`, password: `mariadbP@55`)
       - Jahia user: (username: `jahia`, password: `jahia`)
-    - Kibana: http://kibana.localhost
+    - Kibana: https://kibana.localhost
       - (username: `elastic`, password: `root1234`)
-    - Traefik dashboard: http://localhost:9080/dashboard/
-    - Mail SMTP4dev: http://mailserver.localhost
+    - Traefik dashboard: https://localhost:9080/dashboard/
+    - Mail SMTP4dev: https://mailserver.localhost
     - ElasticVue (using browser extension)
        - Locate the elasticsearch container IP: `docker inspect jahia-experience-suite-elasticsearch-1 | grep IPAddress`
        - config: `cluster name: jahia-es-cluster, uri: <elasticsearch-ip>:9200, username: elastic, password: root1234` 
@@ -199,7 +203,7 @@ follows a declarative approach to install components, configure services, and in
     - Authentication UI components
         - SAML Login button on home page
         - To test the CAS authentication, just
-          hit http://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=http%3A%2F%2Fjahia.localhost%2Fcms%2Frender%2Flive%2Ffr%2Fsites%2Fdigitall%2Fhome.html
+          hit [this link](https://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=https%3A%2F%2Fdigitall.jahia.localhost%2Fcms%2Frender%2Flive%2Fen%2Fsites%2Fdigitall%2Fhome.html)
 
 5. **Customer Experience**:
     - jExperience for personalization
@@ -270,18 +274,61 @@ Here is more thorough explanation of the labels:
       - "traefik.enable=true"
       - "traefik.docker.network=stack"
       - "traefik.http.routers.jahiabrowsing.rule=Host(`jahiabrowsing.localhost`) || HostRegexp(`^.+\\.jahiabrowsing\\.localhost$`)"
-      - "traefik.http.routers.jahiabrowsing.entrypoints=http"
+      - "traefik.http.routers.jahiabrowsing.entrypoints=websecure"
+      - "traefik.http.routers.jahiabrowsing.tls=true"
       - "traefik.http.routers.jahiabrowsing.service=jahiabrowsing-http"
       - "traefik.http.services.jahiabrowsing-http.loadbalancer.server.port=8080"
       - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.httponly=true"
       - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.name=jahia_session"
       - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.secure=true"
+      - "traefik.http.routers.jahiabrowsing-redirect.rule=Host(`jahiabrowsing.localhost`)|| HostRegexp(`^.+\\.jahiabrowsing\\.localhost$`)"
+      - "traefik.http.routers.jahiabrowsing-redirect.entrypoints=web"
+      - "traefik.http.routers.jahiabrowsing-redirect.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
 ```
 
 ### Network Configuration
 
 Traefik connects to the `stack` network (subnet `172.16.1.0/24`) to access all services in the environment, serving as
 the entry point for external requests.
+
+## TLS/SSL Configuration
+Traefik is set up to handle TLS termination, ensuring secure HTTPS connections for all services. Certificates can be
+managed using Let's Encrypt or self-signed certificates for local development.
+
+To generate self-signed certificates, you can use the following OpenSSL command, from the root of the project:
+
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout volumes/traefik/certs/localhost.key -out volumes/traefik/certs/localhost.crt -subj "/C=CA/ST=ON/L=Toronto/O=Jahia/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost"
+```
+
+## Mkcert Configuration
+Alternatively, you can use mkcert to generate locally trusted certificates, mkcert installation will simplify the process of creating and trusting self-signed certificates for local development, it is adding CA to your system trust store.
+First, run ./setup-certs.sh to install mkcert and generate the certificates.
+
+```bash
+./setup-certs.sh
+```
+
+Then change the reverse-proxy service in the docker-compose.yml to use the generated mkcert files:
+```yaml
+    #      - ./volumes/traefik/tls.yml:/etc/traefik/tls.yml:ro # Traefik TLS configuration
+    - ./volumes/traefik/tlsmkcert.yml:/etc/traefik/tls.yml:ro # Traefik TLS configuration with mkcert
+```
+
+Then recreate the traefik container:
+```bash
+docker compose up -d reverse-proxy
+```
+
+Communication between services within the Docker network can remain unencrypted for simplicity.
+
+if you access the Traefik dashboard at [http://localhost:9080/dashboard/](http://localhost:9080/dashboard/), you should see that all routers have TLS enabled.
+
+Requests to services like Jahia, Keycloak, and jCustomer will be securely handled by Traefik and so access to http URLs will be redirected to https.
+[https://jahia.localhost](https://jahia.localhost), [https://keycloak.localhost](https://keycloak.localhost), [https://jcustomer.localhost](https://jcustomer.localhost)
+
+[//]: # (For production environments, it's recommended to use valid SSL certificates from a trusted CA.)
 
 ### Load Balancing Features
 
@@ -301,11 +348,12 @@ Two users are created in the Jahia Experience Suite environment:
 - **ovansk**: The default administrator user with full access to all features and settings. (Username: `ovansk`,
   Password: `Ovans`)
 - **monzos**: An editor in chief user for digitall and luxe website. (Username: `monzos`, Password: `Monzo`)
+- **lauxc**: A regular user for digitall and luxe website. (Username: `lauxc`, Password: `Laux`)
 
 ## CAS Link
 
 To test the CAS authentication, just
-hit [this link](http://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=http%3A%2F%2Fjahia.localhost%2Fcms%2Frender%2Flive%2Fen%2Fsites%2Fdigitall%2Fhome.html).
+hit [this link](https://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=https%3A%2F%2Fdigitall.jahia.localhost%2Fcms%2Frender%2Flive%2Fen%2Fsites%2Fdigitall%2Fhome.html).
 
 
 ## Clustering
@@ -319,7 +367,7 @@ To scale the Jahia Browsing service, you can use the following command:
 JAHIA_CLUSTER_ENABLED=true BROWSING_NODES=2 COMPOSE_PROFILES=cluster docker-compose up -d
 ```
 
-You can alos update your `.env` file
+You can also update your `.env` file
 ```env
 JAHIA_CLUSTER_ENABLED=true
 BROWSING_NODES=2
