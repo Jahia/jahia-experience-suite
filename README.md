@@ -12,6 +12,7 @@ capabilities.
 - [Resource Allocations](#resource-allocations)
 - [Configuration](#configuration)
 - [Networking](#networking)
+- [TLS/SSL Configuration](#tlsssl-configuration)
 - [Authentication](#authentication)
 - [Jahia Configuration : provisioning/provisioning.yaml](#jahia-configuration--provisioningprovisioningyaml)
 - [Traefik Configuration in the Jahia Experience Suite](#traefik-configuration-in-the-jahia-experience-suite)
@@ -23,16 +24,19 @@ capabilities.
 
 1. Clone this repository
 2. Configure environment variables in `.env` file (start by copying `env.example` to `.env`)
+3. Run `docker compose pull` to download the required images
+4. (Optional) Generate self-signed SSL certificates
+5. Run `docker compose build` to build custom images
 3. Start the environment with `docker compose up -d`
 4. Access services through their respective hostnames:
-    - Jahia: http://jahia.localhost
-    - jCustomer: http://jcustomer.localhost
-    - Keycloak: http://keycloak.localhost
-    - phpLDAPadmin: http://phpldapadmin.localhost
-    - phpMyAdmin: http://phpmyadmin.localhost
-    - Kibana: http://kibana.localhost
-    - Traefik dashboard: http://localhost:9080/dashboard/
-    - Mail SMTP4dev: http://mailserver.localhost
+    - Jahia: https://jahia.localhost
+    - jCustomer: https://jcustomer.localhost
+    - Keycloak: https://keycloak.localhost
+    - phpLDAPadmin: https://phpldapadmin.localhost
+    - phpMyAdmin: https://phpmyadmin.localhost
+    - Kibana: https://kibana.localhost
+    - Traefik dashboard: https://localhost:9080/dashboard/
+    - Mail SMTP4dev: https://mailserver.localhost
 
 ## Components
 
@@ -182,7 +186,7 @@ follows a declarative approach to install components, configure services, and in
     - Authentication UI components
         - SAML Login button on home page
         - To test the CAS authentication, just
-          hit http://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=http%3A%2F%2Fjahia.localhost%2Fcms%2Frender%2Flive%2Ffr%2Fsites%2Fdigitall%2Fhome.html
+          hit [this link](https://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=https%3A%2F%2Fdigitall.jahia.localhost%2Fcms%2Frender%2Flive%2Fen%2Fsites%2Fdigitall%2Fhome.html)
 
 5. **Customer Experience**:
     - jExperience for personalization
@@ -253,18 +257,41 @@ Here is more thorough explanation of the labels:
       - "traefik.enable=true"
       - "traefik.docker.network=stack"
       - "traefik.http.routers.jahiabrowsing.rule=Host(`jahiabrowsing.localhost`) || HostRegexp(`^.+\\.jahiabrowsing\\.localhost$`)"
-      - "traefik.http.routers.jahiabrowsing.entrypoints=http"
+      - "traefik.http.routers.jahiabrowsing.entrypoints=websecure"
+      - "traefik.http.routers.jahiabrowsing.tls=true"
       - "traefik.http.routers.jahiabrowsing.service=jahiabrowsing-http"
       - "traefik.http.services.jahiabrowsing-http.loadbalancer.server.port=8080"
       - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.httponly=true"
       - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.name=jahia_session"
       - "traefik.http.services.jahiabrowsing-http.loadbalancer.sticky.cookie.secure=true"
+      - "traefik.http.routers.jahiabrowsing-redirect.rule=Host(`jahiabrowsing.localhost`)|| HostRegexp(`^.+\\.jahiabrowsing\\.localhost$`)"
+      - "traefik.http.routers.jahiabrowsing-redirect.entrypoints=web"
+      - "traefik.http.routers.jahiabrowsing-redirect.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
 ```
 
 ### Network Configuration
 
 Traefik connects to the `stack` network (subnet `172.16.1.0/24`) to access all services in the environment, serving as
 the entry point for external requests.
+
+## TLS/SSL Configuration
+Traefik is set up to handle TLS termination, ensuring secure HTTPS connections for all services. Certificates can be
+managed using Let's Encrypt or self-signed certificates for local development.
+
+To generate self-signed certificates, you can use the following OpenSSL command, from the root of the project:
+
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout volumes/traefik/certs/localhost.key -out volumes/traefik/certs/localhost.crt -subj "/C=CA/ST=ON/L=Toronto/O=Jahia/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost"
+```
+Communication between services within the Docker network can remain unencrypted for simplicity.
+
+if you access the Traefik dashboard at [http://localhost:9080/dashboard/](http://localhost:9080/dashboard/), you should see that all routers have TLS enabled.
+
+Requests to services like Jahia, Keycloak, and jCustomer will be securely handled by Traefik and so access to http URLs will be redirected to https.
+[https://jahia.localhost](https://jahia.localhost), [https://keycloak.localhost](https://keycloak.localhost), [https://jcustomer.localhost](https://jcustomer.localhost)
+
+[//]: # (For production environments, it's recommended to use valid SSL certificates from a trusted CA.)
 
 ### Load Balancing Features
 
@@ -289,7 +316,7 @@ Two users are created in the Jahia Experience Suite environment:
 ## CAS Link
 
 To test the CAS authentication, just
-hit [this link](http://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=http%3A%2F%2Fjahia.localhost%2Fcms%2Frender%2Flive%2Fen%2Fsites%2Fdigitall%2Fhome.html).
+hit [this link](https://keycloak.localhost/realms/realm-idp/protocol/cas/login?service=https%3A%2F%2Fdigitall.jahia.localhost%2Fcms%2Frender%2Flive%2Fen%2Fsites%2Fdigitall%2Fhome.html).
 
 
 ## Clustering
@@ -303,7 +330,7 @@ To scale the Jahia Browsing service, you can use the following command:
 JAHIA_CLUSTER_ENABLED=true BROWSING_NODES=2 COMPOSE_PROFILES=cluster docker-compose up -d
 ```
 
-You can alos update your `.env` file
+You can also update your `.env` file
 ```env
 JAHIA_CLUSTER_ENABLED=true
 BROWSING_NODES=2

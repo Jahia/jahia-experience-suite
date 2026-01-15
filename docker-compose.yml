@@ -401,10 +401,6 @@ services:
      - --providers.docker.exposedbydefault=false
      - --entrypoints.web.address=:80
      - --entrypoints.websecure.address=:443
-     - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
-     - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
-     - --certificatesresolvers.letsencrypt.acme.email=cmailleux@jahia.com
-     - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
      - --providers.file.filename=/etc/traefik/tls.yml
     deploy:
       resources:
@@ -420,9 +416,8 @@ services:
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./volumes/traefik/tls.yml:/etc/traefik/tls.yml:ro
-      - ./volumes/traefik/certs:/etc/ssl/traefik:ro
-      - letsencrypt:/letsencrypt
+      - ./volumes/traefik/tls.yml:/etc/traefik/tls.yml:ro # Traefik TLS configuration
+      - ./volumes/traefik/certs:/etc/ssl/traefik:ro # SSL certificates
     networks:
       - stack
 
