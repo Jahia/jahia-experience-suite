@@ -34,8 +34,8 @@
 - karafCommand: "log:log 'Bundles for digitall site installed'"
 
 # Import the Digitall site
-- import: "jar:mvn:org.jahia.modules/digitall/3.0.0/zip/import!/users.zip"
-- importSite: "jar:mvn:org.jahia.modules/digitall/3.0.0/zip/import!/Digitall.zip"
+- import: "jar:mvn:org.jahia.modules/digitall/RELEASE/zip/import!/users.zip"
+- importSite: "jar:mvn:org.jahia.modules/digitall/RELEASE/zip/import!/Digitall.zip"
 - karafCommand: "log:log 'Digitall site imported'"
 
 # Augmented-Search dependencies are only available from Jahia store
@@ -44,10 +44,10 @@
 
 # Install and start bundles for Augmented Search
 - installBundle:
-  - 'mvn:org.jahia.modules/augmented-search/RELEASE'
-  - 'mvn:org.jahia.modules/augmented-search-ui/RELEASE'
-  - 'mvn:org.jahia.modules/database-connector/RELEASE'
-  - 'mvn:org.jahia.modules/elasticsearch-connector/RELEASE'
+  - 'mvn:org.jahia.modules/augmented-search/3.7.1'
+  - 'mvn:org.jahia.modules/augmented-search-ui/3.0.5'
+  - 'mvn:org.jahia.modules/database-connector/1.6.0'
+  - 'mvn:org.jahia.modules/elasticsearch-connector/3.4.0'
   autoStart: true
   uninstallPreviousVersion: true
 - karafCommand: "log:log 'Bundles for Augmented Search installed'"
@@ -64,13 +64,13 @@
 
 # Install the Luxe demo site
 - installBundle:
-    - 'js:mvn:org.jahia.modules.javascript/luxe-jahia-demo/0.6.1/tgz'
-    - 'mvn:org.jahia.modules/luxe-prepackaged-website/0.6.1'
+    - 'js:mvn:org.jahia.modules.javascript/luxe-jahia-demo/RELEASE/tgz'
+    - 'mvn:org.jahia.modules/luxe-prepackaged-website/RELEASE'
   autoStart: true
   uninstallPreviousVersion: true
 - karafCommand: "log:log 'Luxe site installed'"
 
-- importSite: "jar:mvn:org.jahia.modules/luxe-prepackaged-website/0.6.1/zip/import!/luxe.zip"
+- importSite: "jar:mvn:org.jahia.modules/luxe-prepackaged-website/RELEASE/zip/import!/luxe.zip"
 - karafCommand: "log:log 'Luxe site imported'"
 
 - installConfiguration: "http://web/ldap/org.jahia.services.usermanager.ldap-config.dockerldap.cfg"
@@ -110,6 +110,10 @@
   properties:
     kibana_dashboards_provider.kibanaURL: "http://kibana:5601"
     kibana_dashboards_provider.kibanaPassword: "root1234"
+    kibana_dashboards_provider.kibanaUser: "elastic"
+    kibana_dashboards_provider.kibanaSpace: "default"
+    kibana_dashboards_provider.kibanaProxy.enable: "true"
+    kibana_dashboards_provider.kibanaProxy.cloud: "true"
 
 # Install and start bundles for Forms and jExperience
 - installBundle:

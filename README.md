@@ -283,7 +283,8 @@ Two users are created in the Jahia Experience Suite environment:
 
 - **ovansk**: The default administrator user with full access to all features and settings. (Username: `ovansk`,
   Password: `Ovans`)
-- **monzos**: An eidtor in chief user for digitall and luxe website. (Username: `monzos`, Password: `Monzo`)
+- **monzos**: An editor-in-chief user for digitall and luxe website. (Username: `monzos`, Password: `Monzo`)
+- **lauxc**: A regular user for digitall and luxe website. (Username: `lauxc`, Password: `Laux`)
 
 ## CAS Link
 
