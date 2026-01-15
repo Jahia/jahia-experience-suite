@@ -42,7 +42,7 @@ services:
     hostname: elasticsearch
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=stack"
+      - "traefik.docker.network=jahia-experience-suite-network"
       - "traefik.http.routers.elasticsearch.rule=Host(`elasticsearch.localhost`) || HostRegexp(`elasticsearch`)"
       - "traefik.http.routers.elasticsearch.entrypoints=websecure"
       - "traefik.http.routers.elasticsearch.tls=true"
@@ -83,7 +83,7 @@ services:
       - elasticsearch
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=stack"
+      - "traefik.docker.network=jahia-experience-suite-network"
       - "traefik.http.routers.kibana.rule=Host(`kibana.localhost`) || Host(`kibana`)"
       - "traefik.http.routers.kibana.entrypoints=websecure"
       - "traefik.http.routers.kibana.tls=true"
@@ -116,7 +116,7 @@ services:
       - jahia:127.0.0.1
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=stack"
+      - "traefik.docker.network=jahia-experience-suite-network"
       - "traefik.http.routers.jahia.rule=Host(`jahia.localhost`) || HostRegexp(`^.+\\.jahia\\.localhost$`)"
       - "traefik.http.routers.jahia.entrypoints=websecure"
       - "traefik.http.routers.jahia.tls=true"
@@ -160,7 +160,7 @@ services:
     scale: ${BROWSING_NODES}
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=stack"
+      - "traefik.docker.network=jahia-experience-suite-network"
       - "traefik.http.routers.jahiabrowsing.rule=Host(`jahiabrowsing.localhost`) || HostRegexp(`^.+\\.jahiabrowsing\\.localhost$`)"
       - "traefik.http.routers.jahiabrowsing.entrypoints=websecure"
       - "traefik.http.routers.jahiabrowsing.tls=true"
@@ -218,7 +218,7 @@ services:
           memory: 2gb
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=stack"
+      - "traefik.docker.network=jahia-experience-suite-network"
       - "traefik.http.routers.jcustomer.rule=Host(`jcustomer.localhost`)"
       - "traefik.http.routers.jcustomer.entrypoints=websecure"
       - "traefik.http.routers.jcustomer.tls=true"
@@ -286,7 +286,7 @@ services:
           memory: 512mb
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=stack"
+      - "traefik.docker.network=jahia-experience-suite-network"
       - "traefik.http.routers.phpldapadmin.rule=Host(`phpldapadmin.localhost`)"
       - "traefik.http.routers.phpldapadmin.entrypoints=websecure"
       - "traefik.http.routers.phpldapadmin.tls=true"
@@ -315,7 +315,7 @@ services:
           memory: 256mb
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=stack"
+      - "traefik.docker.network=jahia-experience-suite-network"
       - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.localhost`)"
       - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
       - "traefik.http.routers.phpmyadmin.tls=true"
@@ -354,7 +354,7 @@ services:
       - ./volumes/keycloak/providers:/opt/keycloak/providers
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=stack"
+      - "traefik.docker.network=jahia-experience-suite-network"
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.localhost`)"
       - "traefik.http.routers.keycloak.entrypoints=websecure"
       - "traefik.http.routers.keycloak.tls=true"
@@ -377,7 +377,7 @@ services:
           memory: 256mb
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=stack"
+      - "traefik.docker.network=jahia-experience-suite-network"
       - "traefik.http.routers.mailserver.rule=Host(`mailserver.localhost`)"
       - "traefik.http.routers.mailserver.entrypoints=websecure"
       - "traefik.http.routers.mailserver.tls=true"
@@ -396,11 +396,15 @@ services:
     hostname: proxy
     # Enables the web UI and tells Traefik to listen to docker
     command:
-     - --api.insecure=true
+     - --api=true
+     - --api.disabledashboardad=true
+     - --log.format=json
+     - --log.level=INFO
      - --providers.docker
      - --providers.docker.exposedbydefault=false
      - --entrypoints.web.address=:80
      - --entrypoints.websecure.address=:443
+     - --entryPoints.websecure.http.tls=true
      - --providers.file.filename=/etc/traefik/tls.yml
     deploy:
       resources:
@@ -411,11 +415,16 @@ services:
       - "80:80"
       # The HTTPS port
       - "443:443"
-      # The Web UI (enabled by --api.insecure=true)
-      - "9080:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=jahia-experience-suite-network"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      # Add the following label
+      - "traefik.http.routers.dashboard.tls=true"
     volumes:
       # So that Traefik can listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./volumes/traefik/tls.yml:/etc/traefik/tls.yml:ro # Traefik TLS configuration
 #      - ./volumes/traefik/tlsmkcert.yml:/etc/traefik/tls.yml:ro # Traefik TLS configuration with mkcert
       - ./volumes/traefik/certs:/etc/ssl/traefik:ro # SSL certificates

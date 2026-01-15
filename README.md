@@ -49,7 +49,7 @@ capabilities.
       - Jahia user: (username: `jahia`, password: `jahia`)
     - Kibana: https://kibana.localhost
       - (username: `elastic`, password: `root1234`)
-    - Traefik dashboard: http://localhost:9080/dashboard/
+    - Traefik dashboard: https://traefik.localhost/dashboard/
     - Mail SMTP4dev: https://mailserver.localhost
     - ElasticVue (using browser extension)
        - Locate the elasticsearch container IP: `docker inspect jahia-experience-suite-elasticsearch-1 | grep IPAddress`
@@ -323,7 +323,7 @@ docker compose up -d reverse-proxy
 
 Communication between services within the Docker network can remain unencrypted for simplicity.
 
-if you access the Traefik dashboard at [http://localhost:9080/dashboard/](http://localhost:9080/dashboard/), you should see that all routers have TLS enabled.
+if you access the Traefik dashboard at [https://traefik.localhost/dashboard/](https://traefik.localhost/dashboard/), you should see that all routers have TLS enabled.
 
 Requests to services like Jahia, Keycloak, and jCustomer will be securely handled by Traefik and so access to http URLs will be redirected to https.
 [https://jahia.localhost](https://jahia.localhost), [https://keycloak.localhost](https://keycloak.localhost), [https://jcustomer.localhost](https://jcustomer.localhost)
