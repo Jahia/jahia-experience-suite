@@ -49,7 +49,7 @@ capabilities.
       - Jahia user: (username: `jahia`, password: `jahia`)
     - Kibana: https://kibana.localhost
       - (username: `elastic`, password: `root1234`)
-    - Traefik dashboard: https://localhost:9080/dashboard/
+    - Traefik dashboard: http://localhost:9080/dashboard/
     - Mail SMTP4dev: https://mailserver.localhost
     - ElasticVue (using browser extension)
        - Locate the elasticsearch container IP: `docker inspect jahia-experience-suite-elasticsearch-1 | grep IPAddress`
