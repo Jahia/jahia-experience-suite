@@ -284,6 +284,26 @@ To generate self-signed certificates, you can use the following OpenSSL command,
 ```bash
 openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout volumes/traefik/certs/localhost.key -out volumes/traefik/certs/localhost.crt -subj "/C=CA/ST=ON/L=Toronto/O=Jahia/CN=localhost" -addext "subjectAltName=DNS:localhost,DNS:*.localhost"
 ```
+
+## Mkcert Configuration
+Alternatively, you can use mkcert to generate locally trusted certificates, mkcert installation will simplify the process of creating and trusting self-signed certificates for local development, it is adding CA to your system trust store.
+First, run ./setup-certs.sh to install mkcert and generate the certificates.
+
+```bash
+./setup-certs.sh
+```
+
+Then change the reverse-proxy service in the docker-compose.yml to use the generated mkcert files:
+```yaml
+    #      - ./volumes/traefik/tls.yml:/etc/traefik/tls.yml:ro # Traefik TLS configuration
+    - ./volumes/traefik/tlsmkcert.yml:/etc/traefik/tls.yml:ro # Traefik TLS configuration with mkcert
+```
+
+Then recreate the traefik container:
+```bash
+docker compose up -d reverse-proxy
+```
+
 Communication between services within the Docker network can remain unencrypted for simplicity.
 
 if you access the Traefik dashboard at [http://localhost:9080/dashboard/](http://localhost:9080/dashboard/), you should see that all routers have TLS enabled.

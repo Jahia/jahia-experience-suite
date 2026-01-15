@@ -417,6 +417,7 @@ services:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
       - ./volumes/traefik/tls.yml:/etc/traefik/tls.yml:ro # Traefik TLS configuration
+#      - ./volumes/traefik/tlsmkcert.yml:/etc/traefik/tls.yml:ro # Traefik TLS configuration with mkcert
       - ./volumes/traefik/certs:/etc/ssl/traefik:ro # SSL certificates
     networks:
       - stack

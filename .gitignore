@@ -2,3 +2,4 @@
 .env
 volumes/jahia/sources/**
 .env.*
+volumes/traefik/certs/**
